@@ -12,7 +12,13 @@ type CookieSession = {
 };
 
 export function setSessionCookie(response: Response, session: CookieSession): void {
-  response.cookie(SESSION_COOKIE_NAME, session.token, sessionCookieOptions);
+  response.cookie(
+    SESSION_COOKIE_NAME, 
+    session.token, {
+      ...sessionCookieOptions,
+      expires: new Date(session.expires_at)
+    }
+  );
 }
 
 export function clearSessionCookie(response: Response): void {
