@@ -3,7 +3,10 @@ import type { CookieOptions, Response } from "express";
 const SESSION_COOKIE_NAME = "session_id";
 
 const sessionCookieOptions = {
+  httpOnly: true,
   path: "/",
+  sameSite: "lax",
+  secure: true,
 } satisfies CookieOptions;
 
 type CookieSession = {
