@@ -221,12 +221,13 @@ export function createAccountRouter(deps: Dependencies): Router {
   router.get("/account/reviews/:id/edit", (req, res) => {
     const current = requireAuth(db, req, res);
     if (!current) return;
-    const review = requireOwnedReview(db, req, res);
+    const review = requireOwnedReview(db, req, res, current.user.id);
     if (!review) return;
     res
       .type("html")
       .send(renderReviewFormPage(review, current.session.csrf_token, current.user.display_name));
-  });
+
+    });
 
   router.post("/account/reviews/:id", (req, res) => {
     const current = requireAuth(db, req, res);
@@ -235,7 +236,7 @@ export function createAccountRouter(deps: Dependencies): Router {
       sendErrorPage(res, 403, "Forbidden", "Your request could not be verified.");
       return;
     }
-    const review = requireOwnedReview(db, req, res);
+    const review = requireOwnedReview(db, req, res, current.user.id);
     if (!review) return;
     const rating = Number(req.body.rating);
     const body = parseReviewBody(req.body.body);
@@ -264,7 +265,7 @@ export function createAccountRouter(deps: Dependencies): Router {
       sendErrorPage(res, 403, "Forbidden", "Your request could not be verified.");
       return;
     }
-    const review = requireOwnedReview(db, req, res);
+    const review = requireOwnedReview(db, req, res, current.user.id);
     if (!review) return;
     deleteReview(db, review.id);
     res.redirect("/account/reviews");
@@ -306,7 +307,7 @@ function requireOwnedReview(
   db: DatabaseSync,
   req: Request,
   res: Response,
-  userId?: number,
+  userId: number,
 ): Review | undefined {
   const reviewId = Number(req.params.id);
   if (!Number.isSafeInteger(reviewId)) {
